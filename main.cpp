@@ -1,12 +1,15 @@
 #include <iostream>
 #include <string>
+#include "structures/Graph.h"
 
 using namespace std;
 
 void run(){
     cout << "\nTABU SEARCH -- ATSP\n";
-    int option;
+    int option, optimalCost;
+
     string fileName;
+    Graph graph(1);
     do {
         cout << "1.Load graph from file\n";
         cout << "2.Test tabu search\n";
@@ -24,6 +27,29 @@ void run(){
 
         switch(option){
             case 1:
+                do {
+                    cout << "Choose a file that you want to conduct test on\n";
+                    cout << "1.ftv47.atsp\n";
+                    cout << "2.ftv170.atsp\n";
+                    cout << "3.rbg403.atsp\n";
+                    cin >> option;
+                    cin.clear();
+                    cin.ignore();
+
+                }while(option < 1 || option > 3);
+                if(option == 1) {
+                    fileName = "ftv47.atsp";
+                    optimalCost = 1776;
+                }
+                if(option == 2) {
+                    fileName = "ftv170.atsp";
+                    optimalCost = 2755;
+                }
+                if(option == 3) {
+                    fileName = "rbg403.atsp";
+                    optimalCost = 2465;
+                }
+                graph.readGraphDirected(fileName);
                 break;
             case 2:
                 break;
