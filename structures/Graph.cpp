@@ -76,8 +76,8 @@ void Graph::readGraphDirected(const std::string &s) {
 
         if(dimension != vertices)
             changeSize(dimension);
-        //cout << "dimension = " << dimension << endl;
-        //cout << "vertices = " << vertices << endl;
+        cout << "dimension = " << dimension << endl;
+        cout << "vertices = " << vertices << endl;
 
         int i = 0;
         while(getline(file,line)) {

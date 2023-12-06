@@ -2,21 +2,27 @@
 
 #ifndef TS_SOLUTION_H
 #define TS_SOLUTION_H
-#include "vector";
+#include <vector>
 #include "../structures/Graph.h"
+#include <iostream>
 
 using namespace std;
-class Solution {
-public:
-    vector<int> path;
-    int cost = 0;
-    int calculateCost(Graph &graph);
-    void printSolution();
-    Solution greedySolution(Graph &graph);
-    Solution randomSolution(Graph &graph);
 
+
+class Solution {
 private:
-    int findNearestCity(int currentCity, Graph &graph, vector<bool> &visited);
+     int findNearestCity(int currentCity, const Graph& graph, const std::vector<bool>& visited);
+
+public:
+    vector <int> path;
+    int cost = 0;
+
+
+    int calculateCost(const Graph& graph);
+    void printSolution();
+
+    static Solution greedySolution(const Graph& graph);
+
 };
 
 
