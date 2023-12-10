@@ -3,13 +3,16 @@
 #ifndef TS_TABUSEARCH_H
 #define TS_TABUSEARCH_H
 
-#include "Solution.h"
 
-using namespace std;
+#include "../structures/Graph.h"
 
 class TabuSearch {
+private:
+    ;
+
 public:
-    Solution TSApply();
+    TabuSearch(Graph &graph);
+
 
 };
 

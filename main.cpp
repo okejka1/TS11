@@ -1,7 +1,6 @@
 #include <iostream>
 #include <string>
 #include "structures/Graph.h"
-#include "algorithm/Solution.h"
 
 using namespace std;
 
@@ -9,8 +8,7 @@ void test(){
     Graph graph(1);
     string fileName = "ftv47.atsp";
     graph.readGraphDirected(fileName);
-    Solution solution = Solution::greedySolution(graph);
-    solution.printSolution();
+
 
 
 };
