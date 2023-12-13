@@ -5,15 +5,43 @@
 
 
 #include "../structures/Graph.h"
+#include "../structures/TabuList.h"
 
 class TabuSearch {
-private:
-    ;
 
 public:
     TabuSearch(Graph &graph);
 
+// fields
+    TabuList tabuList;
+    Graph g;
+    int numOfCities;
+    int *currentSolution;
+    int *bestSolution;
+    int *neighbourSolution;
+    int currentSolutionCost;
+    int bestSolutionCost;
+    int neighbourSolutionCost;
+    int numberOfCities;
+    int iterationsSinceChange;
 
+
+
+    // methods
+    void generateGreedySolution();
+
+
+    void printSolution(int *solutionPath);
+
+    int calculateSolutionCost(int *path);
+
+    void generateNeighbourSolution();
+    void generateNeighbourSolution2();
+    void generateNeighbourSolution3();
+
+    void shuffleSolution();
+
+    void TSSolver(int maxIterations);
 };
 
 

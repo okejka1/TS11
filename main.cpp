@@ -1,13 +1,19 @@
 #include <iostream>
 #include <string>
 #include "structures/Graph.h"
+#include "algorithm/TabuSearch.h"
+
 
 using namespace std;
 
 void test(){
     Graph graph(1);
-    string fileName = "ftv47.atsp";
+    string fileName = "rbg403.atsp";
     graph.readGraphDirected(fileName);
+    TabuSearch ts(graph);
+    ts.TSSolver(3000000);
+
+
 
 
 
@@ -47,7 +53,7 @@ void run(){
                 }while(option < 1 || option > 3);
                 if(option == 1) {
                     fileName = "ftv47.atsp";
-                    optimalCost = 1776;
+                    optimalCost = 1776; 
                 }
                 if(option == 2) {
                     fileName = "ftv170.atsp";
