@@ -6,18 +6,41 @@
 
 using namespace std;
 
-void test(){
+void test() {
     Graph graph(1);
-    string fileName = "rbg403.atsp";
+    string fileName;
+    int fileOption;
+
+    cout << "Choose a file that you want to conduct a test on\n";
+    cout << "1. ftv47.atsp\n";
+    cout << "2. ftv170.atsp\n";
+    cout << "3. rbg403.atsp\n";
+
+    cin >> fileOption;
+    cin.clear();
+    cin.ignore();
+
+    switch (fileOption) {
+        case 1:
+            fileName = "ftv47.atsp";
+            break;
+        case 2:
+            fileName = "ftv170.atsp";
+            break;
+        case 3:
+            fileName = "rbg403.atsp";
+            break;
+        default:
+            cout << "Invalid input\n\n";
+            return;
+    }
+
     graph.readGraphDirected(fileName);
     TabuSearch ts(graph);
-    ts.TSSolver(3000000);
+    ts.TSSolver(60, 20000000, 1);
+    ts.
 
-
-
-
-
-};
+}
 void run(){
     cout << "\nTABU SEARCH -- ATSP\n";
     int option, optimalCost;
@@ -66,6 +89,7 @@ void run(){
                 graph.readGraphDirected(fileName);
                 break;
             case 2:
+//                cout << ""
                 break;
             case 3:
                 break;
@@ -87,4 +111,6 @@ void run(){
 int main() {
     //run();
     test();
+
+    return 0;
 }

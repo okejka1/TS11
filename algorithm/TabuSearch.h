@@ -10,7 +10,8 @@
 class TabuSearch {
 
 public:
-    TabuSearch(Graph &graph);
+    explicit TabuSearch(Graph &graph);
+    ~TabuSearch();
 
 // fields
     TabuList tabuList;
@@ -35,13 +36,15 @@ public:
 
     int calculateSolutionCost(int *path);
 
-    void generateNeighbourSolution();
-    void generateNeighbourSolution2();
-    void generateNeighbourSolution3();
+    void generateNeighbourSwap();
+    void generateNeighbour2Opt();
 
-    void shuffleSolution();
 
-    void TSSolver(int maxIterations);
+  //  void shuffleSolution();
+
+    void TSSolver(int maxDurationInSeconds, int maxIterations, int neighbourMethod);
+
+    void generateRandomSolution();
 };
 
 

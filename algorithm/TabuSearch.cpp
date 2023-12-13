@@ -6,9 +6,11 @@
 
 #include <random>
 #include <iostream>
+#include <algorithm>
 #include "TabuSearch.h"
+#include "../utils/Timer.h"
 
-TabuSearch::TabuSearch(Graph &graph) : tabuList(graph.vertices), g(graph.vertices) {
+TabuSearch::TabuSearch(Graph &graph) : tabuList(graph.vertices * 2), g(graph.vertices) { // grapgh vetrices okey
     g = graph;
     currentSolution = new int[g.vertices];
     neighbourSolution = new int[g.vertices];
@@ -73,8 +75,31 @@ int TabuSearch::calculateSolutionCost(int *path) {
 
     return cost;
 }
+void TabuSearch::generateRandomSolution() {
+    // Create an array representing the indices of cities
+    int* indices = new int[numberOfCities];
+    for (int i = 0; i < numberOfCities; ++i) {
+        indices[i] = i;
+    }
 
-void TabuSearch::generateNeighbourSolution() {
+    // Shuffle the indices array to create a random permutation
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::shuffle(indices, indices + numberOfCities, gen);
+
+    // Assign the shuffled indices to the currentSolution array
+    for (int i = 0; i < numberOfCities; ++i) {
+        currentSolution[i] = indices[i];
+    }
+
+    // Calculate the cost of the random solution
+    currentSolutionCost = calculateSolutionCost(currentSolution);
+
+    // Clean up memory
+    delete[] indices;
+}
+void TabuSearch::generateNeighbourSwap() {
+
     int city1, city2;
 
     std::copy(currentSolution, currentSolution + numberOfCities, neighbourSolution);
@@ -93,65 +118,62 @@ void TabuSearch::generateNeighbourSolution() {
     tabuList.push(city1,city2);
 }
 
-void TabuSearch::shuffleSolution() {
-    std::copy(currentSolution, currentSolution + numberOfCities, neighbourSolution);
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> randomVertex(0, numberOfCities - 1);
-
-    // Perform a big jump by shuffling a subset of cities (e.g., shuffle cities between pos1 and pos2)
-    int pos1 = randomVertex(gen);
-    int pos2 = randomVertex(gen);
-
-    if (pos1 > pos2) {
-        std::swap(pos1, pos2);
-    }
-
-    int subsetSize = pos2 - pos1 + 1;
-    int* tempSubset = new int[subsetSize];
-
-    // Copy the subset of cities to tempSubset
-    std::copy(neighbourSolution + pos1, neighbourSolution + pos2 + 1, tempSubset);
-
-    // Shuffle the subset of cities using Fisher-Yates shuffle algorithm
-    for (int i = subsetSize - 1; i > 0; --i) {
-        int j = rand() % (i + 1);
-        std::swap(tempSubset[i], tempSubset[j]);
-    }
-
-    // Copy the shuffled subset back to neighbourSolution
-    std::copy(tempSubset, tempSubset + subsetSize, neighbourSolution + pos1);
-
-    neighbourSolutionCost = calculateSolutionCost(neighbourSolution);
-
-    // Clean up memory
-    delete[] tempSubset;
-
-}
 
 
-void TabuSearch::TSSolver(int maxIterations) {
+
+void TabuSearch::TSSolver(int maxDurationInSeconds,int maxIterations, int neighbourMethod) {
     generateGreedySolution();
-    int iteration = 0;
+
+
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<> dis(0.0, 1.0);
     double random_number = dis(gen);
-    while(iteration < maxIterations) {
+    Timer timer;
+    timer.start();
+    int iteration = 0;
+
+    while(timer.mili() < maxDurationInSeconds * 1000 && iteration < maxIterations) {
 
         if (iterationsSinceChange >= maxIterations * 0.2) {
+            std::cout << "***********************************************************************************************************\n";
             tabuList.clear();
-            shuffleSolution();
-        } else if(random_number < 0.5)
-            generateNeighbourSolution();
-        else
-            generateNeighbourSolution2();
+
+//            // Accept the non-improving neighbor
+//            std::copy(neighbourSolution, neighbourSolution + numberOfCities, currentSolution);
+//            currentSolutionCost = neighbourSolutionCost;
+//            std::cout << "CURRENT COST AFTER ACCEPTING NON-IMPROVING NEIGHBOR:" << currentSolutionCost << "\n";
+//            printSolution(currentSolution);
+            generateRandomSolution();
+            iterationsSinceChange = 0;
+        }
+
+        switch(neighbourMethod){
+            case 1:
+                generateNeighbourSwap();
+                break;
+            case 2:
+                generateNeighbour2Opt();
+                break;
+            case 3:
+                if(random_number < 0.5) {
+                    generateNeighbourSwap();
+                } else
+                    generateNeighbour2Opt();
+                break;
+            default:
+                std::cout << "WRONG PAREAMETERS FOR DEFING NEIGHBOUR SOLUTION\n";
+                break;
+        }
+        timer.stop();
+//        std::cout << "\nCzas uplynniety\n";
+//        std::cout << timer.mili() * 1000 << " sekund\n";
 
         if (neighbourSolutionCost < currentSolutionCost) {
             iterationsSinceChange = 0;
             std::copy(neighbourSolution, neighbourSolution + numberOfCities, currentSolution);
             currentSolutionCost = calculateSolutionCost(currentSolution);
-
+            std::cout << "\nbestCurrent cost = " << currentSolutionCost << "\n";
             if (currentSolutionCost < bestSolutionCost) {
                 std::copy(currentSolution, currentSolution + numberOfCities, bestSolution);
                 bestSolutionCost = calculateSolutionCost(bestSolution);
@@ -160,64 +182,62 @@ void TabuSearch::TSSolver(int maxIterations) {
             }
         } else {
             iterationsSinceChange++;
-            iteration++;
         }
+        iteration++;
 
     }
     std::cout << "Final solution: ";
     printSolution(bestSolution);
     std::cout << "\nFinal solution cost: " << bestSolutionCost;
+    // Clear dynamically allocated arrays and tabu list
+    delete[] currentSolution;
+    delete[] neighbourSolution;
+    delete[] bestSolution;
+    tabuList.clear();
 
 }
 
-void TabuSearch::generateNeighbourSolution2() {
-    int city1, city2,city3,city4;
+
+
+
+void TabuSearch::generateNeighbour2Opt() {
+    int city1, city2, city3, city4;
 
     std::copy(currentSolution, currentSolution + numberOfCities, neighbourSolution);
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> randomVertex(0, numberOfCities - 1);
+
     do {
         city1 = randomVertex(gen);
         city2 = randomVertex(gen);
         city3 = randomVertex(gen);
         city4 = randomVertex(gen);
-    }while(city1 == city2 || city3 == city4 || tabuList.findMove(city1, city2) || tabuList.findMove(city3, city4));
+    } while (city1 == city2 || city3 == city4 || tabuList.findMove(city1, city2) || tabuList.findMove(city3, city4));
 
-    std::swap(neighbourSolution[city1], neighbourSolution[city2]);
-    std::swap(neighbourSolution[city3], neighbourSolution[city4]);
-    neighbourSolutionCost = calculateSolutionCost(neighbourSolution);
-    tabuList.push(city1,city2);
-    tabuList.push(city3,city4);
+    // Check if the move is already in the tabuList
+    if (!tabuList.findMove(city1, city2) && !tabuList.findMove(city3, city4)) {
+        std::swap(neighbourSolution[city1], neighbourSolution[city2]);
+        std::swap(neighbourSolution[city3], neighbourSolution[city4]);
+        neighbourSolutionCost = calculateSolutionCost(neighbourSolution);
+        tabuList.push(city1, city2);
+        tabuList.push(city3, city4);
+    }
 }
 
-void TabuSearch::generateNeighbourSolution3() {
+TabuSearch::~TabuSearch() {
+    delete[] currentSolution;
+    delete[] neighbourSolution;
+    delete[] bestSolution;
 
-        std::copy(currentSolution, currentSolution + numOfCities, neighbourSolution);
-
-        int pos1, pos2;
-        do {
-            pos1 = rand() % (numOfCities - 1) + 1;
-            pos2 = rand() % (numOfCities - 1) + 1;
-        } while (pos1 == pos2 || abs(pos1 - pos2) < 2 || tabuList.findMove(pos1, pos2));
-
-        tabuList.push(pos1, pos2);
+}
 
 
-        if (pos1 > pos2) {
-            std::swap(pos1, pos2);
-        }
 
-        // Apply 2-opt swap
-        while (pos1 < pos2) {
-            std::swap(neighbourSolution[pos1], neighbourSolution[pos2]);
-            pos1++;
-            pos2--;
-        }
 
-        neighbourSolutionCost = calculateSolutionCost(neighbourSolution);
 
-    }
+
+
 
 
 
