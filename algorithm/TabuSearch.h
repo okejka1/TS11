@@ -4,8 +4,10 @@
 #define TS_TABUSEARCH_H
 
 
+#include <vector>
 #include "../structures/Graph.h"
 #include "../structures/TabuList.h"
+using namespace std;
 
 class TabuSearch {
 
@@ -13,13 +15,18 @@ public:
     explicit TabuSearch(Graph &graph);
     ~TabuSearch();
 
+
 // fields
     TabuList tabuList;
     Graph g;
     int numOfCities;
-    int *currentSolution;
-    int *bestSolution;
-    int *neighbourSolution;
+//    int *currentSolution;
+//    int *bestSolution;
+//    int *neighbourSolution;
+    vector<int> currentSolution;
+    vector<int> bestSolution;
+    vector<int> neighbourSolution;
+
     int currentSolutionCost;
     int bestSolutionCost;
     int neighbourSolutionCost;
@@ -32,9 +39,9 @@ public:
     void generateGreedySolution();
 
 
-    void printSolution(int *solutionPath);
+    void printSolution(vector<int>solutionPath);
 
-    int calculateSolutionCost(int *path);
+    int calculateSolutionCost(vector<int> path);
 
     void generateNeighbourSwap();
     void generateNeighbour2Opt();
@@ -42,7 +49,7 @@ public:
 
   //  void shuffleSolution();
 
-    void TSSolver(int maxDurationInSeconds, int maxIterations, int neighbourMethod);
+    void TSSolver( int maxDurationInSeconds, int maxIterations, int neighbourMethod);
 
     void generateRandomSolution();
 };

@@ -1,6 +1,4 @@
 
-
-
 #include "TabuSearch.h"
 
 
@@ -10,16 +8,14 @@
 #include "TabuSearch.h"
 #include "../utils/Timer.h"
 
-TabuSearch::TabuSearch(Graph &graph) : tabuList(graph.vertices * 2), g(graph.vertices) { // grapgh vetrices okey
+TabuSearch::TabuSearch(Graph &graph) : tabuList(graph.vertices * 2), g(graph.vertices), currentSolution(graph.vertices), neighbourSolution(graph.vertices), bestSolution(graph.vertices) { // grapgh vetrices okey
     g = graph;
-    currentSolution = new int[g.vertices];
-    neighbourSolution = new int[g.vertices];
-    bestSolution = new int[g.vertices];
     currentSolutionCost = 0;
     neighbourSolutionCost = INT_MAX;
     bestSolutionCost = INT_MAX;
     iterationsSinceChange = 0;
     numberOfCities = g.vertices;
+    cout << "konstruktor tabu search wywolany\n";
 
 
 }
@@ -50,14 +46,14 @@ void TabuSearch::generateGreedySolution() {
     }
     currentSolutionCost += g.edges[currentCity][currentSolution[0]];
 
-    std::copy(currentSolution,currentSolution + numberOfCities,bestSolution);
+    bestSolution = currentSolution;
     bestSolutionCost = currentSolutionCost;
     printSolution(currentSolution);
     std::cout << "best solution cost:" << bestSolutionCost;
     delete[] visited;
 }
 
-void TabuSearch::printSolution(int *solutionPath) {
+void TabuSearch::printSolution(vector<int>solutionPath) {
     for(int city = 0; city < numberOfCities; city++){
         std::cout<< solutionPath[city] << "-> ";
     }
@@ -66,7 +62,7 @@ void TabuSearch::printSolution(int *solutionPath) {
 
 }
 
-int TabuSearch::calculateSolutionCost(int *path) {
+int TabuSearch::calculateSolutionCost(vector<int>path) {
     int cost = 0;
     for(int i = 0; i < numberOfCities - 1; i++) {
         cost += g.edges[path[i]][path[i+1]];
@@ -102,7 +98,7 @@ void TabuSearch::generateNeighbourSwap() {
 
     int city1, city2;
 
-    std::copy(currentSolution, currentSolution + numberOfCities, neighbourSolution);
+    neighbourSolution = currentSolution;
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> randomVertex(0, numberOfCities - 1);
@@ -124,7 +120,7 @@ void TabuSearch::generateNeighbourSwap() {
 void TabuSearch::TSSolver(int maxDurationInSeconds,int maxIterations, int neighbourMethod) {
     generateGreedySolution();
 
-
+    long bestSolutionTime;
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<> dis(0.0, 1.0);
@@ -135,7 +131,7 @@ void TabuSearch::TSSolver(int maxDurationInSeconds,int maxIterations, int neighb
 
     while(timer.mili() < maxDurationInSeconds * 1000 && iteration < maxIterations) {
 
-        if (iterationsSinceChange >= maxIterations * 0.2) {
+        if (iterationsSinceChange >= maxIterations * 0.3) {
             std::cout << "***********************************************************************************************************\n";
             tabuList.clear();
 
@@ -171,11 +167,13 @@ void TabuSearch::TSSolver(int maxDurationInSeconds,int maxIterations, int neighb
 
         if (neighbourSolutionCost < currentSolutionCost) {
             iterationsSinceChange = 0;
-            std::copy(neighbourSolution, neighbourSolution + numberOfCities, currentSolution);
+            currentSolution = neighbourSolution;
             currentSolutionCost = calculateSolutionCost(currentSolution);
             std::cout << "\nbestCurrent cost = " << currentSolutionCost << "\n";
             if (currentSolutionCost < bestSolutionCost) {
-                std::copy(currentSolution, currentSolution + numberOfCities, bestSolution);
+                bestSolution = currentSolution;
+                timer.stop();
+                bestSolutionTime = timer.mili();
                 bestSolutionCost = calculateSolutionCost(bestSolution);
                 printSolution(bestSolution);
                 std::cout << "\nbestSolution cost = " << bestSolutionCost << "\n";
@@ -188,12 +186,10 @@ void TabuSearch::TSSolver(int maxDurationInSeconds,int maxIterations, int neighb
     }
     std::cout << "Final solution: ";
     printSolution(bestSolution);
-    std::cout << "\nFinal solution cost: " << bestSolutionCost;
-    // Clear dynamically allocated arrays and tabu list
-    delete[] currentSolution;
-    delete[] neighbourSolution;
-    delete[] bestSolution;
-    tabuList.clear();
+    std::cout << "\nFinal solution cost: " << bestSolutionCost << "\n";
+    std::cout << "Final solution found in " << bestSolutionTime / 1000 << " seconds\n";
+
+
 
 }
 
@@ -203,7 +199,7 @@ void TabuSearch::TSSolver(int maxDurationInSeconds,int maxIterations, int neighb
 void TabuSearch::generateNeighbour2Opt() {
     int city1, city2, city3, city4;
 
-    std::copy(currentSolution, currentSolution + numberOfCities, neighbourSolution);
+    neighbourSolution = currentSolution;
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> randomVertex(0, numberOfCities - 1);
@@ -226,11 +222,10 @@ void TabuSearch::generateNeighbour2Opt() {
 }
 
 TabuSearch::~TabuSearch() {
-    delete[] currentSolution;
-    delete[] neighbourSolution;
-    delete[] bestSolution;
-
+    cout << "Dektruktor tabuSearch wywolany\n";
 }
+
+
 
 
 

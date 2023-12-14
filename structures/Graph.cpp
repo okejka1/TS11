@@ -18,7 +18,7 @@ Graph::Graph(int v) {
         for(int j = 0; j < vertices; j++)
             edges[i][j] = INT_MAX;
     }
-
+    cout << "Konstruktor grafu wywolany\n";
 }
 
 Graph::~Graph() {
@@ -30,7 +30,7 @@ Graph::~Graph() {
         delete[] edges;
         edges = nullptr;
     }
-
+    cout << "Destruktor grafu wywolany\n";
 }
 
 void Graph::changeSize(int size) {
@@ -58,9 +58,11 @@ void Graph::readGraphDirected(const std::string &s) {
     string name = R"(..\input\)" + s;
     ifstream file(name);
 
+
     if(file.is_open()) {
         string line;
         vector<int> lineData;
+
 
         for(int i =0; i < 4; i++){
             getline(file,line);
@@ -73,6 +75,7 @@ void Graph::readGraphDirected(const std::string &s) {
 
         int dimension;
         dimension = stoi(numerToString);
+
 
         if(dimension != vertices)
             changeSize(dimension);
@@ -93,6 +96,7 @@ void Graph::readGraphDirected(const std::string &s) {
             }
         }
         cout << "Read completed from " <<  s  << "\n\n";
+
         file.close();
     } else
         cout << "There was a problem with opening your file\n\n";

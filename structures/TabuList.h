@@ -4,9 +4,7 @@
 #include "Move.h"
 #include <deque>
 
-/**
- * Tabu List using std::deque
- */
+
 class TabuList {
 private:
     std::deque<Move*> moves;
