@@ -36,8 +36,8 @@ void test() {
     }
 
     graph.readGraphDirected(fileName);
-    TabuSearch ts(graph);
-    ts.TSSolver(60, 20000000, 2);
+
+
 
 
 }
@@ -117,8 +117,7 @@ void run(){
                 break;
 
             case 4:{
-                TabuSearch ts(graph);
-                ts.TSSolver(endConditionInSeconds,20000000,neighbourhoodMethod);
+                TabuSearch::apply(graph,endConditionInSeconds,neighbourhoodMethod,200000000);
                 break;
             }
             case 5:

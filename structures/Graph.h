@@ -19,7 +19,7 @@ public:
     void changeSize(int size);
 
 
-    virtual ~Graph();
+     ~Graph();
 
 };
 

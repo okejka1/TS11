@@ -7,3 +7,7 @@ Move::Move(int city1, int city2) {
 
 
 }
+
+Move::~Move() {
+
+}
