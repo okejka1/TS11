@@ -18,7 +18,7 @@ Graph::Graph(int v) {
         for(int j = 0; j < vertices; j++)
             edges[i][j] = INT_MAX;
     }
-    cout << "Konstruktor grafu wywolany\n";
+
 }
 
 Graph::~Graph() {
@@ -30,7 +30,7 @@ Graph::~Graph() {
         delete[] edges;
         edges = nullptr;
     }
-    cout << "Destruktor grafu wywolany\n";
+
 }
 
 void Graph::changeSize(int size) {

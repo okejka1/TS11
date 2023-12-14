@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <fstream>
 #include "structures/Graph.h"
 #include "algorithm/TabuSearch.h"
 
@@ -41,7 +42,7 @@ void test() {
 
 
 }
-void run(){
+void run() {
     cout << "\nTABU SEARCH -- ATSP\n";
     int option;
 
@@ -70,7 +71,7 @@ void run(){
         cin.ignore(); //This skips the left over stream data.
 
 
-        switch(option) {
+        switch (option) {
             case 1: {
 
                 do {
@@ -116,12 +117,55 @@ void run(){
                 cin.ignore();
                 break;
 
-            case 4:{
-                TabuSearch::apply(graph,endConditionInSeconds,neighbourhoodMethod,200000000);
+            case 4: {
+                TabuSearch::apply(graph, endConditionInSeconds, neighbourhoodMethod, 200000000);
                 break;
             }
-            case 5:
+            case 5: { // AUTO TESTS;
+                cout << "Choose your method to define neighbours that you want to conduct test on\n";
+                cout << "1.Swap two Cities\n";
+                cout << "2.2-opt method\n";
+                cout << "3.Hybrid of previous two methods\n";
+                cin >> neighbourhoodMethod;
+                cin.clear();
+                cin.ignore();
+                ofstream file((R"(..\output\results_)" + fileName + "_" + to_string(neighbourhoodMethod) + ".csv"));
+                if (file.is_open()) {
+                    if (fileName == "ftv47.atsp") {
+                        endConditionInSeconds = 120;
+                        optimalCost = 1776;
+                    } else if (fileName == "ftv170.atsp") {
+                        endConditionInSeconds = 240;
+                        optimalCost = 2755;
+                    } else if (fileName == "rbg403.atsp") {
+                        endConditionInSeconds = 360;
+                        optimalCost = 2465;
+                    }
+                    file << "cost;" << "time;" << "% error;" << optimalCost << "\n";
+
+                    Solution testSolution;
+                    testSolution.cost = INT_MAX;
+                    int numOfTests = 10;
+                    for (int i = 0; i < numOfTests; i++) {
+                        pair<Solution, long> resultOfTest = TabuSearch::apply(graph, endConditionInSeconds,
+                                                                              neighbourhoodMethod, 200000000);
+                        int actualCost = resultOfTest.first.cost;
+                        int percentageError = static_cast<int>(((actualCost - optimalCost) * 100.0) / optimalCost);
+
+                        file << actualCost << ";" << resultOfTest.second << ";" << percentageError << "%" << ";"
+                             << optimalCost << endl;
+                        if (resultOfTest.first.cost < testSolution.cost) {
+                            testSolution = resultOfTest.first;
+                        }
+                    }
+                    file << "path of best solution" << endl;
+                    for (int item: testSolution.path)
+                        file << item <<"->";
+                    file << testSolution.path[0] << endl;
+                    file.close();
+                }
                 break;
+            }
             case 6:
                 break;
             default:

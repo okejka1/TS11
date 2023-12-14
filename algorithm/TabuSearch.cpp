@@ -5,14 +5,14 @@
 #include "TabuSearch.h"
 #include "../utils/Timer.h"
 #include "TabuSearch.h"
-TabuList TabuSearch::tabulist(800);  // Define the static member variable
+TabuList TabuSearch::tabulist(171);  // Define the static member variable
 
-Solution TabuSearch::apply(Graph &graph, int maxDurationInSeconds, int neighbourMethod, int maxIterations) {
+std::pair<Solution, long> TabuSearch::apply(Graph &graph, int maxDurationInSeconds, int neighbourMethod, int maxIterations) {
     tabulist.clear();
     Solution bestSolution = Solution::generateGreedySolution(graph);
     Solution currentSolution = bestSolution;
 
-    long bestSolutionTime;
+    long bestSolutionTime = 0;
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<> dis(0.0, 1.0);
@@ -23,13 +23,14 @@ Solution TabuSearch::apply(Graph &graph, int maxDurationInSeconds, int neighbour
     int iterationsSinceChange = 0;
 
     while(timer.mili() < maxDurationInSeconds * 1000 && iteration < maxIterations) {
-        if (iterationsSinceChange >= maxIterations * 0.2) {
-            std::cout << "Generating random solution due to being stuck in local optima\n";
+        if (iterationsSinceChange >= maxIterations * 0.005) {
+            std::cout << "Accept of worse neigbour solution due to being stuck in local optima\n";
             tabulist.clear();
+            currentSolution = Solution::generateNeighbourSwap(graph, currentSolution);
 
-
-            currentSolution = Solution::generateRandomSolution(graph);
+//            currentSolution = Solution::generateRandomSolution(graph);
             iterationsSinceChange = 0;
+
         }
         Solution neigbourSolution;
         switch(neighbourMethod){
@@ -49,10 +50,11 @@ Solution TabuSearch::apply(Graph &graph, int maxDurationInSeconds, int neighbour
                 std::cout << "WRONG PAREAMETERS FOR DEFING NEIGHBOUR SOLUTION\n";
                 break;
         }
-        timer.stop();
         if(neigbourSolution.cost < currentSolution.cost) {
+            iterationsSinceChange = 0;
             currentSolution = neigbourSolution;
             currentSolution.cost = Solution::calculateCost(graph, currentSolution);
+            cout << "Current Best cost = " << currentSolution.cost << "\n";
             if(currentSolution.cost < bestSolution.cost) {
                 iterationsSinceChange = 0;
                 bestSolution = currentSolution;
@@ -65,14 +67,16 @@ Solution TabuSearch::apply(Graph &graph, int maxDurationInSeconds, int neighbour
             }
 
         }
+        timer.stop();
         iterationsSinceChange++;
 
 
         iteration++;
     }
+    timer.stop();
     std::cout << "Final solution: ";
     Solution::print(bestSolution);
     std::cout << "\nFinal solution cost: " << bestSolution.cost << "\n";
     std::cout << "Final solution found in " << bestSolutionTime / 1000 << " seconds\n";
-    return bestSolution;
+    return std::make_pair(bestSolution, bestSolutionTime);
 }

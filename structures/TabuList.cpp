@@ -7,7 +7,7 @@
 using namespace std;
 TabuList::TabuList(int size) {
     maxSize = size;
-    cout << "Konstruktor tabuList wywolany\n";
+
 }
 
 TabuList::~TabuList() {
@@ -15,7 +15,7 @@ TabuList::~TabuList() {
         delete moves.front();
         moves.pop_front();
     }
-    cout << " Destruktor tabu List wywolany\n";
+
 
 }
 

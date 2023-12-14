@@ -8,8 +8,12 @@ Solution Solution::generateGreedySolution(Graph &graph) {
     Solution solution;
     int numberOfCities = graph.vertices;
     std::vector<bool> visited(numberOfCities, false);
+//    std::random_device rd;
+//    std::mt19937 gen(rd());
+//    std::uniform_int_distribution<> randomCity(0, numberOfCities - 1);
+//    int currentCity = randomCity(gen);
 
-    int currentCity = 0;
+    int currentCity = 9;
     solution.path.push_back(currentCity);
     visited[currentCity] = true;
 
