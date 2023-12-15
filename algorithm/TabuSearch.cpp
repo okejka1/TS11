@@ -23,7 +23,7 @@ std::pair<Solution, long> TabuSearch::apply(Graph &graph, int maxDurationInSecon
     int iterationsSinceChange = 0;
 
     while(timer.mili() < maxDurationInSeconds * 1000 && iteration < maxIterations) {
-        if (iterationsSinceChange >= maxIterations * 0.005) {
+        if (iterationsSinceChange >= maxIterations * 0.05) {
             std::cout << "Accept of worse neigbour solution due to being stuck in local optima\n";
             tabulist.clear();
             currentSolution = Solution::generateNeighbourSwap(graph, currentSolution);
@@ -54,7 +54,7 @@ std::pair<Solution, long> TabuSearch::apply(Graph &graph, int maxDurationInSecon
             iterationsSinceChange = 0;
             currentSolution = neigbourSolution;
             currentSolution.cost = Solution::calculateCost(graph, currentSolution);
-            cout << "Current Best cost = " << currentSolution.cost << "\n";
+//            cout << "Current Best cost = " << currentSolution.cost << "\n";
             if(currentSolution.cost < bestSolution.cost) {
                 iterationsSinceChange = 0;
                 bestSolution = currentSolution;
