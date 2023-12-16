@@ -5,7 +5,7 @@
 #include "TabuSearch.h"
 #include "../utils/Timer.h"
 #include "TabuSearch.h"
-TabuList TabuSearch::tabulist(171);  // Define the static member variable
+TabuList TabuSearch::tabulist(24);  // Define the static member variable
 
 std::pair<Solution, long> TabuSearch::apply(Graph &graph, int maxDurationInSeconds, int neighbourMethod, int maxIterations) {
     tabulist.clear();
@@ -26,7 +26,7 @@ std::pair<Solution, long> TabuSearch::apply(Graph &graph, int maxDurationInSecon
         if (iterationsSinceChange >= maxIterations * 0.05) {
             std::cout << "Accept of worse neigbour solution due to being stuck in local optima\n";
             tabulist.clear();
-            currentSolution = Solution::generateNeighbourSwap(graph, currentSolution);
+            currentSolution = Solution::generateNeighbourSwap(graph, currentSolution, tabulist);
 
 //            currentSolution = Solution::generateRandomSolution(graph);
             iterationsSinceChange = 0;
@@ -35,16 +35,16 @@ std::pair<Solution, long> TabuSearch::apply(Graph &graph, int maxDurationInSecon
         Solution neigbourSolution;
         switch(neighbourMethod){
             case 1:
-                 neigbourSolution = Solution::generateNeighbourSwap(graph, currentSolution);
+                 neigbourSolution = Solution::generateNeighbourSwap(graph, currentSolution, tabulist);
                 break;
             case 2:
-                 neigbourSolution = Solution::generateNeighbourSwap(graph, currentSolution);
+                 neigbourSolution = Solution::generateNeighbour2Opt(graph, currentSolution, tabulist);
                 break;
             case 3:
                 if(random_number < 0.5) {
-                    neigbourSolution = Solution::generateNeighbourSwap(graph, currentSolution);
+                    neigbourSolution = Solution::generateNeighbourSwap(graph, currentSolution, tabulist);
                 } else
-                    neigbourSolution = Solution::generateNeighbourSwap(graph, currentSolution);
+                    neigbourSolution = Solution::generateNeighbour2Opt(graph, currentSolution, tabulist);
                 break;
             default:
                 std::cout << "WRONG PAREAMETERS FOR DEFING NEIGHBOUR SOLUTION\n";
@@ -54,7 +54,6 @@ std::pair<Solution, long> TabuSearch::apply(Graph &graph, int maxDurationInSecon
             iterationsSinceChange = 0;
             currentSolution = neigbourSolution;
             currentSolution.cost = Solution::calculateCost(graph, currentSolution);
-//            cout << "Current Best cost = " << currentSolution.cost << "\n";
             if(currentSolution.cost < bestSolution.cost) {
                 iterationsSinceChange = 0;
                 bestSolution = currentSolution;
@@ -65,12 +64,9 @@ std::pair<Solution, long> TabuSearch::apply(Graph &graph, int maxDurationInSecon
                 std::cout << "\nbestSolution cost = " << bestSolution.cost << "\n";
                 tabulist.push(bestSolution.move.first, bestSolution.move.second);
             }
-
         }
         timer.stop();
         iterationsSinceChange++;
-
-
         iteration++;
     }
     timer.stop();

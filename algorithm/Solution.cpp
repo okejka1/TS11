@@ -13,11 +13,8 @@ Solution Solution::generateGreedySolution(Graph &graph) {
     std::uniform_int_distribution<> randomCity(0, numberOfCities - 1);
     int currentCity = randomCity(gen);
 
-
-
     solution.path.push_back(currentCity);
     visited[currentCity] = true;
-
     for (int i = 1; i < numberOfCities; ++i) {
         int nearestCity = findNearestCity(graph, currentCity, visited);
         solution.path.push_back(nearestCity);
@@ -25,7 +22,6 @@ Solution Solution::generateGreedySolution(Graph &graph) {
         solution.cost += graph.edges[currentCity][nearestCity];
         currentCity = nearestCity;
     }
-
     solution.cost += graph.edges[currentCity][solution.path[0]];
     return solution;
 }
@@ -47,34 +43,31 @@ Solution Solution::generateRandomSolution(Graph &graph) {
     return solution;
 }
 
-Solution Solution::generateNeighbourSwap( Graph& graph,  Solution& currentSolution) {
+Solution Solution::generateNeighbourSwap(Graph& graph, Solution currentSolution, TabuList& tabuList) {
     Solution neighbourSolution = currentSolution;
     int numberOfCities = static_cast<int>(currentSolution.path.size());
-
     int city1, city2;
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> randomVertex(0, numberOfCities - 1);
-
     do {
         city1 = randomVertex(gen);
         city2 = randomVertex(gen);
-    } while (city1 == city2);
+    } while (city1 == city2 || tabuList.findMove(city1, city2));
 
     if (city1 > city2) {
         std::swap(city1, city2);
     }
-
     Solution newSolution = currentSolution;
     newSolution.path = currentSolution.path;
     std::swap(newSolution.path[city1], newSolution.path[city2]);
-
-    int newCost = Solution::calculateCost(graph, newSolution);
-
-    neighbourSolution.path = newSolution.path;
-    neighbourSolution.cost =(newCost);
-    neighbourSolution.move = {city1, city2};
-
+    // Check if the move is already in the tabuList
+    if (!tabuList.findMove(city1, city2)) {
+        int newCost = Solution::calculateCost(graph, newSolution);
+        neighbourSolution.path = newSolution.path;
+        neighbourSolution.cost = newCost;
+        neighbourSolution.move = {city1, city2};
+    }
     return neighbourSolution;
 }
 
@@ -92,6 +85,14 @@ int Solution::calculateCost(Graph &graph, Solution solution) {
 
     return cost;
 }
+void Solution::print(Solution solution) {
+    std::cout << "Path: ";
+    for (int city : solution.path) {
+        std::cout << city << " -> ";
+    }
+    std::cout << solution.path[0] << "\n";
+    std::cout << "Cost: " << solution.cost << "\n";
+}
 
 int Solution::findNearestCity(const Graph &graph, int currentCity, const std::vector<bool> &visited) {
     int numberOfCities = graph.vertices;
@@ -108,14 +109,7 @@ int Solution::findNearestCity(const Graph &graph, int currentCity, const std::ve
     return nearestCity;
 }
 
-void Solution::print(Solution solution) {
-    std::cout << "Path: ";
-    for (int city : solution.path) {
-        std::cout << city << " -> ";
-    }
-    std::cout << solution.path[0] << "\n";
-    std::cout << "Cost: " << solution.cost << "\n";
-}
+
 
 Solution Solution::generateNeighbour2Opt(Graph& graph, Solution currentSolution, TabuList& tabuList) {
     Solution neighbourSolution = currentSolution;

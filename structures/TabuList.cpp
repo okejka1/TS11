@@ -18,7 +18,6 @@ TabuList::~TabuList() {
 
 
 }
-
 void TabuList::push(int city1, int city2) {
     if(moves.size() == maxSize) {
         delete moves.back();
@@ -26,7 +25,6 @@ void TabuList::push(int city1, int city2) {
     }
     moves.push_front(new Move(city1,city2));
 }
-
 void TabuList::printMoves() {
     std::cout << "Currently restricted steps: ";
     for(const auto& move: moves){
@@ -34,14 +32,12 @@ void TabuList::printMoves() {
     }
     std::cout << std::endl;
 }
-
 void TabuList::clear() {
     while (!moves.empty()) {
         delete moves.front();
         moves.pop_front();
     }
 }
-
 bool TabuList::findMove(int c1, int c2) {
     for(const auto& move:moves) {
       if((move->firstCity == c1 && move->secondCity == c2) || (move->firstCity == c2 && move->secondCity == c1))
